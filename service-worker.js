@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.0/workbox-sw.js");
 
 importScripts(
-  "/twist-pie-chart/precache-manifest.a832c7bff5a089c538fc82e08ef6ea64.js"
+  "/twist-pie-chart/precache-manifest.6d28081c0ee3ecb7fdd274e7636216c6.js"
 );
 
 self.addEventListener('message', (event) => {
