@@ -1,29 +1,29 @@
 import React, { Component, Fragment } from 'react';
 import ReactDOM from 'react-dom';
-import PieChartBundle from "./lib";
+import PieChart from "./lib";
 
 class App extends Component {
     constructor(props) {
         super(props);
-        this.state = {
-            data: {
-                data: [
-                    { time: 14324324, m1: 54, m2: 443 },
-                    { time: 14394324, m1: 45, m2: 403 },
-                    { time: 1439434324, m1: 45, m2: 403 },
-                    { time: 1432435424, m1: 54, m2: 443 },
-                    { time: 16394324, m1: 45, m2: 403 },
-                    { time: 15394344, m1: 45, m2: 403 },
-                    { time: 154355444, m1: 54, m2: 443 },
-                    { time: 1639555424, m1: 45, m2: 403 },
-                    { time: 153945454, m1: 45, m2: 403 }],
-                keys: ["time", "m1", "m2"]
-            },
-            selectedCol1: null,
-            selectedCol2: null
+
+        this.dataTypeToColorDict = {
+            MEDS: "#C2EEF8",
+            FLUSHES: "#5DD2EF",
+            TPN: "#84A5D5",
+            FEEDS: "#A3DBDC",
+            lol434ra: "#C13BDA",
+            xbo4334x: "#613BFA"
         }
 
-        this.updateTableState = this.updateTableState.bind(this)
+        this.state = {
+            data: [
+                { value: 1, type: "MEDS" },
+                { value: 1, type: "FLUSHES" },
+                { value: 20, type: "FEEDS" },
+                { value: 10, type: "FEEDS" },
+                { value: 1, type: "TPN" }
+            ]
+        }
     }
 
     handleSubmit = (e) => {
@@ -54,7 +54,7 @@ class App extends Component {
     render() {
         return (
             <>
-                <div>Pass in data in the form: {'{data: [{time: 156565656, m1: 54, m2: 443}, {time: 1654654546, m1: 54, m2: 443 }, {time: 16546546546, m1: 54, m2: 443 },  {time: 1654663146, m1: 54, m2: 443 },  {time: 1656546546, m1: 54, m2: 443 }, {time: 16534546, m1: 54, m2: 443 }, {time: 1656346546, m1: 54, m2: 443 }], keys: ["time", "m1", "m2"]} '}</div>
+                <div>Pass in data in the form: {' [{ value: 1, type: "MEDS" }, {value: 1, type: "FLUSHES" }, {value: 20, type: "FEEDS" }, {value: 10, type: "FEEDS" }, {value: 1, type: "TPN" }] '}</div>
                 <form onSubmit={this.handleSubmit}>
                     <input style={{
                         height: "50px",
@@ -63,8 +63,7 @@ class App extends Component {
                     }} placeholder="data" type="text" ref={(element) => { this.data = element }} />
                     <button>UPDATE TABLE</button>
                 </form>
-                <PieChartBundle
-                />
+                <PieChart data={this.state.data} dataTypeToColorDict={this.dataTypeToColorDict} title={"Calories"} />
             </>
         )
     }

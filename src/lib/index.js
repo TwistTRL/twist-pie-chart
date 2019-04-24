@@ -1,2 +1,2 @@
-import PieChartBundle from "./PieChartBundle";
-export default PieChartBundle;
+import PieChart from "./PieChart";
+export default PieChart;

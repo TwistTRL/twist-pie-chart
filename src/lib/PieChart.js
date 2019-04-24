@@ -339,7 +339,7 @@ class PieChart extends PureComponent {
             });
         }
 
-        if (this.state.currentHovering != this.aggData[currentColorIndex]) {
+        if (this.state.currentHovering !== this.aggData[currentColorIndex]) {
             // draw the bars
             this.drawBreakDownBars();
         }
