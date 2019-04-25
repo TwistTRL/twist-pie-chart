@@ -23,50 +23,75 @@ class PieChart extends PureComponent {
         }
 
         // pie chart data setup
-        this.aggData = []
-        this.aggDataTypeTable = {}
         this.colorToDataTypeDict = {}
         this.pieChartColors = []
         this.pieChartPickingColors = []
-        this.pieChartPickingColorsSet = new Set()
         this.pieChartPickingColorOffSet = 7
+
         for (var i = 1; i <= this.data.length; i++) {
             this.pieChartPickingColors.push(this.digToRgbStr(i))
-            this.pieChartPickingColorsSet.add(i * this.pieChartPickingColorOffSet)
         }
-        this.dataSum = 0
-        this.data.map(d => {
-            this.dataSum += d.value
-            if (!this.aggDataTypeTable[d.type]) {
-                this.aggDataTypeTable[d.type] = { "value": d.value }
+    }
+
+    componentDidMount() {
+        this.pieChartCanvas = this.refs.canvas
+        this.pieChartPickingCanvas = this.refs.pieChartPickingCanvas
+        this.tooltipCanvas = this.refs.tooltipCanvas
+        this.pieChartCtx = this.pieChartCanvas.getContext("2d")
+        this.pieChartPickingCtx = this.pieChartPickingCanvas.getContext("2d")
+        this.aggData = this.aggTheData(this.data)
+        for (var i = 1; i <= this.aggData.length; i++) {
+            this.pieChartPickingColors.push(this.digToRgbStr(i))
+        }
+        this.drawPieChart(this.pieChartCtx, this.pieChartColors)
+        this.drawPieChart(this.pieChartPickingCtx, this.pieChartPickingColors, " ", true)
+    }
+
+    componentDidUpdate() {
+        this.data = this.props.data;
+        this.title = this.props.title;
+        this.typeToColorDict = this.props.dataTypeToColorDict
+        this.aggData = this.aggTheData(this.data)
+        for (var i = 1; i <= this.aggData.length; i++) {
+            this.pieChartPickingColors.push(this.digToRgbStr(i))
+        }
+        this.drawPieChart(this.pieChartCtx, this.pieChartColors)
+        this.drawPieChart(this.pieChartPickingCtx, this.pieChartPickingColors, " ", true)
+    }
+
+    aggTheData(rawData) {
+        let aggData = []
+        let aggDataTypeTable = {}
+        let dataSum = 0
+        this.pieChartColors = []
+
+        rawData.map(d => {
+            dataSum += d.value
+            if (!aggDataTypeTable[d.type]) {
+                aggDataTypeTable[d.type] = { "value": d.value }
             } else {
-                this.aggDataTypeTable[d.type] = { "value": this.aggDataTypeTable[d.type]["value"] += d.value }
+                aggDataTypeTable[d.type] = { "value": aggDataTypeTable[d.type]["value"] += d.value }
             }
         })
 
-        Object.keys(this.aggDataTypeTable).map((key, index) => {
-            let type = this.aggDataTypeTable[key]
+        Object.keys(aggDataTypeTable).map((key, index) => {
+            let type = aggDataTypeTable[key]
             this.pieChartColors.push(this.typeToColorDict[key])
-            type["percent"] = type["value"] / this.dataSum
+            type["percent"] = type["value"] / dataSum
             type["rad"] = type["percent"] * 2 * Math.PI
             type["type"] = key
-            this.colorToDataTypeDict[this.pieChartColors[i]] = type
-            this.aggData[index] = type
+            this.colorToDataTypeDict[this.pieChartColors[index]] = type
+            aggData[index] = type
         })
 
-        this.aggData.sort((a, b) => {
+        aggData.sort((a, b) => {
             return a.rad - b.rad
         })
+
+        return aggData
     }
 
-    // animate = (time) => {
-    //     draw(pct);
-    //     pct += 3;
-    //     if (pct <= endingPct) {
-    //         requestAnimationFrame(animate);
-    //     }
-    // }
-
+    // pass in data too
     drawPieChart = (ctx, colors, selected = "", isPickingCanvas = false) => {
         var offset = 10;
         var beginAngle = 0;
@@ -79,130 +104,135 @@ class PieChart extends PureComponent {
         var maxUsedOuterLabelAngleDeg = 0;
         var outerLabelAngleDeg;
 
-        for (var i = 0; i < this.aggData.length; i++) {
-            r = isPickingCanvas ? this.pieChartCanvasW / 4 + 10 : this.pieChartCanvasW / 4
-            label = this.aggData[i].type
-            beginAngle = endAngle
-            endAngle = endAngle + this.aggData[i].rad;
-            medianAngleRad = (endAngle + beginAngle) / 2;
-            cosMedianAngle = Math.cos(medianAngleRad)
-            sinMedianAngle = Math.sin(medianAngleRad)
-            x = cx + r * 0.60 * cosMedianAngle;
-            y = cy + r * 0.60 * sinMedianAngle;
-            fillColor = colors[i]
+        if (ctx) {
+            ctx.canvas.width = ctx.canvas.width
+            ctx.clearRect(0, 0, this.pieChartCanvasW, this.pieChartCanvasH);
 
-            if (isPickingCanvas) {
-                // picking canvas
-                offsetX = 0;
-                offsetY = 0;
-            } else if (colors[i] === selected) {
-                // for hovering effect
-                offsetX = cosMedianAngle * offset;
-                offsetY = sinMedianAngle * offset;
-            } else {
-                offsetX = cosMedianAngle * 2
-                offsetY = sinMedianAngle * 2
-            }
+            for (var i = 0; i < this.aggData.length; i++) {
+                r = isPickingCanvas ? this.pieChartCanvasW / 4 + 10 : this.pieChartCanvasW / 4
+                label = this.aggData[i].type
+                beginAngle = endAngle
+                endAngle = endAngle + this.aggData[i].rad;
+                medianAngleRad = (endAngle + beginAngle) / 2;
+                cosMedianAngle = Math.cos(medianAngleRad)
+                sinMedianAngle = Math.sin(medianAngleRad)
+                x = cx + r * 0.60 * cosMedianAngle;
+                y = cy + r * 0.60 * sinMedianAngle;
+                fillColor = this.props.dataTypeToColorDict[this.aggData[i].type]
 
-            // for outer labeling
-            outerLabelAngleDeg = this.roundDegToMultiOfTen(this.toDegree(medianAngleRad))
-            if (outerLabelAngleDeg <= maxUsedOuterLabelAngleDeg + 5) {
-                maxUsedOuterLabelAngleDeg += 6
-                outerLabelAngleDeg = maxUsedOuterLabelAngleDeg
-            } else {
-                maxUsedOuterLabelAngleDeg = outerLabelAngleDeg
-            }
-
-            // draw the slice
-            ctx.beginPath();
-            ctx.fillStyle = fillColor;
-            ctx.moveTo(cx + offsetX, cy + offsetY);
-            ctx.arc(cx + offsetX, cy + offsetY, r, beginAngle, endAngle);
-            ctx.lineTo(cx + offsetX, cy + offsetY);
-            ctx.strokeStyle = colors[i];  //'rgba(0, 0, 0, 0.4)'
-            ctx.fill();
-
-            //label styling
-            ctx.textAlign = "center";
-            ctx.textBaseline = "top";
-            // hovering effect
-            ctx.font = selected !== colors[i] ? "bold 10pt MuseoSans" : "900 10pt MuseoSans"
-            ctx.fillStyle = isPickingCanvas ? colors[i] : '#1f589d';
-
-            if (this.aggData[i].percent > 0.15) {
-                if (!isPickingCanvas) {
-                    // draw the inner label
-                    ctx.fillText(label, x, y);
+                if (isPickingCanvas) {
+                    // picking canvas
+                    offsetX = 0;
+                    offsetY = 0;
+                } else if (fillColor === selected) {
+                    // for hovering effect
+                    offsetX = cosMedianAngle * offset;
+                    offsetY = sinMedianAngle * offset;
+                } else {
+                    offsetX = cosMedianAngle * 2
+                    offsetY = sinMedianAngle * 2
                 }
-            } else {
-                var outerLabelCosMedianAngle = Math.cos(this.toRadians(outerLabelAngleDeg))
-                var outerLabelSinMedianAngle = Math.sin(this.toRadians(outerLabelAngleDeg))
-                // modify the radius for the picking canvas so that label rect is drawn at the same position
-                // as the visible canvas
-                var outerLabelR = isPickingCanvas ? r -= 10 : r;
-                var outerLabelX = cx + outerLabelR * 0.80 * outerLabelCosMedianAngle + outerLabelR / 2 * outerLabelCosMedianAngle;
-                var outerLabelY = cy + outerLabelR * 0.90 * outerLabelSinMedianAngle + outerLabelR / 2 * outerLabelSinMedianAngle
 
-                if (!isPickingCanvas) {
-                    if (this.aggData[i].percent > 0.15) {
+                // for outer labeling
+                outerLabelAngleDeg = this.roundDegToMultiOfTen(this.toDegree(medianAngleRad))
+                if (outerLabelAngleDeg <= maxUsedOuterLabelAngleDeg + 5) {
+                    maxUsedOuterLabelAngleDeg += 6
+                    outerLabelAngleDeg = maxUsedOuterLabelAngleDeg
+                } else {
+                    maxUsedOuterLabelAngleDeg = outerLabelAngleDeg
+                }
+
+                // draw the slice
+                ctx.beginPath();
+                ctx.fillStyle = fillColor;
+                ctx.moveTo(cx + offsetX, cy + offsetY);
+                ctx.arc(cx + offsetX, cy + offsetY, r, beginAngle, endAngle);
+                ctx.lineTo(cx + offsetX, cy + offsetY);
+                ctx.strokeStyle = fillColor;  //'rgba(0, 0, 0, 0.4)'
+                ctx.fill();
+
+                //label styling
+                ctx.textAlign = "center";
+                ctx.textBaseline = "top";
+                // hovering effect
+                ctx.font = selected !== fillColor ? "bold 10pt MuseoSans" : "900 10pt MuseoSans"
+                ctx.fillStyle = isPickingCanvas ? fillColor : '#1f589d';
+
+                if (this.aggData[i].percent > 0.15) {
+                    if (!isPickingCanvas) {
                         // draw the inner label
                         ctx.fillText(label, x, y);
                     }
-
-                    // draw the label line
-                    x = cx + r * 0.90 * cosMedianAngle;
-                    y = cy + r * 0.90 * sinMedianAngle;
-                    ctx.lineWidth = selected === colors[i] ? 2 : 1.3
-                    ctx.beginPath()
-                    ctx.moveTo(x, y);
-                    ctx.lineTo(x + r / 5 * cosMedianAngle, y + r / 5 * sinMedianAngle);
-
-                    // position label differently depending on the angle 
-                    if (outerLabelAngleDeg >= 90 && outerLabelAngleDeg < 180) {
-                        // bottom left
-                        ctx.textAlign = "right"
-                        ctx.textBaseline = "top"
-                    } else if (outerLabelAngleDeg >= 180 && outerLabelAngleDeg < 270) {
-                        // top left
-                        ctx.textAlign = "right"
-                        ctx.textBaseline = "bottom"
-                    } else if (outerLabelAngleDeg >= 270) {
-                        // top right
-                        ctx.textAlign = "left"
-                        ctx.textBaseline = "bottom"
-                    } else {
-                        ctx.textAlign = "left"
-                        ctx.textBaseline = "top"
-                    }
-
-                    // draw angled line
-                    ctx.lineTo(outerLabelX, outerLabelY)
-                    ctx.stroke();
-                    // draw the outer label
-                    ctx.fillText(label, outerLabelX, outerLabelY);
                 } else {
-                    // draw the label picking area 
-                    // manually offsetting x and y to take the canvas text align into account
-                    var fontW = ctx.measureText(label).width
-                    var fontH = parseInt(ctx.font.match(/\d+/), 11)
-                    var rectHeight = 12
+                    var outerLabelCosMedianAngle = Math.cos(this.toRadians(outerLabelAngleDeg))
+                    var outerLabelSinMedianAngle = Math.sin(this.toRadians(outerLabelAngleDeg))
+                    // modify the radius for the picking canvas so that label rect is drawn at the same position
+                    // as the visible canvas
+                    var outerLabelR = isPickingCanvas ? r -= 10 : r;
+                    var outerLabelX = cx + outerLabelR * 0.80 * outerLabelCosMedianAngle + outerLabelR / 2 * outerLabelCosMedianAngle;
+                    var outerLabelY = cy + outerLabelR * 0.90 * outerLabelSinMedianAngle + outerLabelR / 2 * outerLabelSinMedianAngle
 
-                    if (outerLabelAngleDeg >= 90 && outerLabelAngleDeg < 180) {
-                        // bottom left
-                        ctx.rect(outerLabelX - fontW, outerLabelY, fontW, rectHeight)
-                    } else if (outerLabelAngleDeg >= 180 && outerLabelAngleDeg < 270) {
-                        // top left
-                        ctx.rect(outerLabelX - fontW, outerLabelY - fontH - 2, fontW, rectHeight)
-                    } else if (outerLabelAngleDeg >= 270) {
-                        // top right
-                        ctx.rect(outerLabelX, outerLabelY - fontH - 2, fontW, rectHeight)
+                    if (!isPickingCanvas) {
+                        if (this.aggData[i].percent > 0.15) {
+                            // draw the inner label
+                            ctx.fillText(label, x, y);
+                        }
+
+                        // draw the label line
+                        x = cx + r * 0.90 * cosMedianAngle;
+                        y = cy + r * 0.90 * sinMedianAngle;
+                        ctx.lineWidth = selected === fillColor[i] ? 2 : 1.3
+                        ctx.beginPath()
+                        ctx.moveTo(x, y);
+                        ctx.lineTo(x + r / 5 * cosMedianAngle, y + r / 5 * sinMedianAngle);
+
+                        // position label differently depending on the angle 
+                        if (outerLabelAngleDeg >= 90 && outerLabelAngleDeg < 180) {
+                            // bottom left
+                            ctx.textAlign = "right"
+                            ctx.textBaseline = "top"
+                        } else if (outerLabelAngleDeg >= 180 && outerLabelAngleDeg < 270) {
+                            // top left
+                            ctx.textAlign = "right"
+                            ctx.textBaseline = "bottom"
+                        } else if (outerLabelAngleDeg >= 270) {
+                            // top right
+                            ctx.textAlign = "left"
+                            ctx.textBaseline = "bottom"
+                        } else {
+                            ctx.textAlign = "left"
+                            ctx.textBaseline = "top"
+                        }
+
+                        // draw angled line
+                        ctx.lineTo(outerLabelX, outerLabelY)
+                        ctx.stroke();
+                        // draw the outer label
+                        ctx.fillText(label, outerLabelX, outerLabelY);
                     } else {
-                        // bottom right
-                        ctx.rect(outerLabelX, outerLabelY, fontW, rectHeight)
-                    }
+                        // draw the label picking area 
+                        // manually offsetting x and y to take the canvas text align into account
+                        var fontW = ctx.measureText(label).width
+                        var fontH = parseInt(ctx.font.match(/\d+/), 11)
+                        var rectHeight = 12
 
-                    ctx.fillStyle = colors[i]
-                    ctx.fill();
+                        if (outerLabelAngleDeg >= 90 && outerLabelAngleDeg < 180) {
+                            // bottom left
+                            ctx.rect(outerLabelX - fontW, outerLabelY, fontW, rectHeight)
+                        } else if (outerLabelAngleDeg >= 180 && outerLabelAngleDeg < 270) {
+                            // top left
+                            ctx.rect(outerLabelX - fontW, outerLabelY - fontH - 2, fontW, rectHeight)
+                        } else if (outerLabelAngleDeg >= 270) {
+                            // top right
+                            ctx.rect(outerLabelX, outerLabelY - fontH - 2, fontW, rectHeight)
+                        } else {
+                            // bottom right
+                            ctx.rect(outerLabelX, outerLabelY, fontW, rectHeight)
+                        }
+
+                        ctx.fillStyle = fillColor[i]
+                        ctx.fill();
+                    }
                 }
             }
         }
@@ -322,7 +352,7 @@ class PieChart extends PureComponent {
         var originalYOffset = 15
 
         // redraw the chart to "offset" the slice that is being hovered over
-        this.pieChartCtx.clearRect(0, 0, this.pieChartCanvas.width, this.pieChartCanvas.height);
+        // this.pieChartCtx.clearRect(0, 0, this.pieChartCanvasW, this.pieChartCanvasH);
         this.drawPieChart(this.pieChartCtx, this.pieChartColors, this.pieChartColors[currentColorIndex]);
 
         if (p[2] !== 0 && p[3] === 255) {
@@ -350,16 +380,6 @@ class PieChart extends PureComponent {
             ...this.state,
             canvasToolTipVisibility: "hidden"
         })
-    }
-
-    componentDidMount() {
-        this.pieChartCanvas = this.refs.canvas
-        this.pieChartPickingCanvas = this.refs.pieChartPickingCanvas
-        this.tooltipCanvas = this.refs.tooltipCanvas
-        this.pieChartCtx = this.pieChartCanvas.getContext("2d")
-        this.pieChartPickingCtx = this.pieChartPickingCanvas.getContext("2d")
-        this.drawPieChart(this.pieChartCtx, this.pieChartColors)
-        this.drawPieChart(this.pieChartPickingCtx, this.pieChartPickingColors, " ", true)
     }
 
     render() {

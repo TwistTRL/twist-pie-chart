@@ -24,6 +24,25 @@ class App extends Component {
                 { value: 1, type: "TPN" }
             ]
         }
+
+        this.meds = ["MEDS", "FLUSHES", "FEEDS", "TPN"]
+
+        this.handleRemoveBtnCLick = this.handleRemoveBtnCLick.bind(this)
+    }
+
+    componentDidMount() {
+        let self = this
+        setInterval(function () {
+            self.simulateDataChange()
+        }, 1000);
+    }
+
+    handleRemoveBtnCLick() {
+        let data = this.state.data
+        data = data.slice(0, -1);
+        this.setState({
+            data: data
+        })
     }
 
     handleSubmit = (e) => {
@@ -34,36 +53,51 @@ class App extends Component {
         });
 
         let json = JSON.parse(jsonStr)
+        let newData = this.state.data
+        newData.push(json)
         this.setState({
-            ...this.state,
-            data: json
+            data: [...this.state.data, json]
         })
     }
 
-    updateTableState(newState) {
-        this.setState({
-            ...this.state,
-            ...newState
-        })
-    }
+    simulateDataChange() {
+        let addOrRemove = Math.floor(Math.random() * 100) + 0
+        let medIndex = Math.floor(Math.random() * 4) + 0
 
-    selectedMeasurement() {
-
+        if (addOrRemove % 11 === 0) {
+            let data = this.state.data
+            data = data.slice(0, -1);
+            this.setState({
+                data: data
+            })
+        } else {
+            let json = {
+                value: Math.floor(Math.random() * 100) + 1,
+                type: this.meds[medIndex]
+            }
+            let newData = this.state.data
+            newData.push(json)
+            this.setState({
+                data: [...this.state.data, json]
+            })
+        }
     }
 
     render() {
+        let data = this.state.data
         return (
             <>
-                <div>Pass in data in the form: {' [{ value: 1, type: "MEDS" }, {value: 1, type: "FLUSHES" }, {value: 20, type: "FEEDS" }, {value: 10, type: "FEEDS" }, {value: 1, type: "TPN" }] '}</div>
+                <div>Pass in data in the form: {' { value: 1, type: "MEDS" } '}</div>
                 <form onSubmit={this.handleSubmit}>
                     <input style={{
                         height: "50px",
                         width: "50%",
                         fontSize: "14pt"
                     }} placeholder="data" type="text" ref={(element) => { this.data = element }} />
-                    <button>UPDATE TABLE</button>
+                    <button>ADD DATA</button>
                 </form>
-                <PieChart data={this.state.data} dataTypeToColorDict={this.dataTypeToColorDict} title={"Calories"} />
+                <button onClick={this.handleRemoveBtnCLick}>REMOVE DATA</button>
+                <PieChart data={data} dataTypeToColorDict={this.dataTypeToColorDict} title={"Calories"} />
             </>
         )
     }
