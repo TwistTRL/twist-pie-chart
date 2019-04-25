@@ -40,6 +40,7 @@ class PieChart extends PureComponent {
         this.pieChartCtx = this.pieChartCanvas.getContext("2d")
         this.pieChartPickingCtx = this.pieChartPickingCanvas.getContext("2d")
         this.aggData = this.aggTheData(this.data)
+        this.pieChartPickingColors = []
         for (var i = 1; i <= this.aggData.length; i++) {
             this.pieChartPickingColors.push(this.digToRgbStr(i))
         }
@@ -48,15 +49,22 @@ class PieChart extends PureComponent {
     }
 
     componentDidUpdate() {
-        this.data = this.props.data;
-        this.title = this.props.title;
-        this.typeToColorDict = this.props.dataTypeToColorDict
-        this.aggData = this.aggTheData(this.data)
-        for (var i = 1; i <= this.aggData.length; i++) {
-            this.pieChartPickingColors.push(this.digToRgbStr(i))
+        if (this.state.canvasToolTipVisibility === "hidden") {
+            this.data = this.props.data;
+            this.title = this.props.title;
+            this.typeToColorDict = this.props.dataTypeToColorDict
+            this.aggData = this.aggTheData(this.data)
+            this.pieChartPickingColors = []
+            for (var i = 1; i <= this.aggData.length; i++) {
+                this.pieChartPickingColors.push(this.digToRgbStr(i))
+            }
+            let pieChartColors = []
+            this.aggData.map(d => {
+                pieChartColors.push(this.props.dataTypeToColorDict[d["type"]])
+            })
+            this.drawPieChart(this.pieChartCtx, pieChartColors)
+            this.drawPieChart(this.pieChartPickingCtx, this.pieChartPickingColors, " ", true)
         }
-        this.drawPieChart(this.pieChartCtx, this.pieChartColors)
-        this.drawPieChart(this.pieChartPickingCtx, this.pieChartPickingColors, " ", true)
     }
 
     aggTheData(rawData) {
@@ -118,7 +126,7 @@ class PieChart extends PureComponent {
                 sinMedianAngle = Math.sin(medianAngleRad)
                 x = cx + r * 0.60 * cosMedianAngle;
                 y = cy + r * 0.60 * sinMedianAngle;
-                fillColor = this.props.dataTypeToColorDict[this.aggData[i].type]
+                fillColor = colors[i]
 
                 if (isPickingCanvas) {
                     // picking canvas
@@ -354,6 +362,8 @@ class PieChart extends PureComponent {
         // redraw the chart to "offset" the slice that is being hovered over
         // this.pieChartCtx.clearRect(0, 0, this.pieChartCanvasW, this.pieChartCanvasH);
         this.drawPieChart(this.pieChartCtx, this.pieChartColors, this.pieChartColors[currentColorIndex]);
+
+        console.log(p, currentColorIndex, this.pieChartPickingColors)
 
         if (p[2] !== 0 && p[3] === 255) {
             this.setState({

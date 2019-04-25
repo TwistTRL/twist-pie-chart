@@ -70,6 +70,7 @@ var PieChart = function (_PureComponent) {
             this.pieChartCtx = this.pieChartCanvas.getContext("2d");
             this.pieChartPickingCtx = this.pieChartPickingCanvas.getContext("2d");
             this.aggData = this.aggTheData(this.data);
+            this.pieChartPickingColors = [];
             for (var i = 1; i <= this.aggData.length; i++) {
                 this.pieChartPickingColors.push(this.digToRgbStr(i));
             }
@@ -79,20 +80,29 @@ var PieChart = function (_PureComponent) {
     }, {
         key: "componentDidUpdate",
         value: function componentDidUpdate() {
-            this.data = this.props.data;
-            this.title = this.props.title;
-            this.typeToColorDict = this.props.dataTypeToColorDict;
-            this.aggData = this.aggTheData(this.data);
-            for (var i = 1; i <= this.aggData.length; i++) {
-                this.pieChartPickingColors.push(this.digToRgbStr(i));
+            var _this2 = this;
+
+            if (this.state.canvasToolTipVisibility === "hidden") {
+                this.data = this.props.data;
+                this.title = this.props.title;
+                this.typeToColorDict = this.props.dataTypeToColorDict;
+                this.aggData = this.aggTheData(this.data);
+                this.pieChartPickingColors = [];
+                for (var i = 1; i <= this.aggData.length; i++) {
+                    this.pieChartPickingColors.push(this.digToRgbStr(i));
+                }
+                var pieChartColors = [];
+                this.aggData.map(function (d) {
+                    pieChartColors.push(_this2.props.dataTypeToColorDict[d["type"]]);
+                });
+                this.drawPieChart(this.pieChartCtx, pieChartColors);
+                this.drawPieChart(this.pieChartPickingCtx, this.pieChartPickingColors, " ", true);
             }
-            this.drawPieChart(this.pieChartCtx, this.pieChartColors);
-            this.drawPieChart(this.pieChartPickingCtx, this.pieChartPickingColors, " ", true);
         }
     }, {
         key: "aggTheData",
         value: function aggTheData(rawData) {
-            var _this2 = this;
+            var _this3 = this;
 
             var aggData = [];
             var aggDataTypeTable = {};
@@ -110,11 +120,11 @@ var PieChart = function (_PureComponent) {
 
             Object.keys(aggDataTypeTable).map(function (key, index) {
                 var type = aggDataTypeTable[key];
-                _this2.pieChartColors.push(_this2.typeToColorDict[key]);
+                _this3.pieChartColors.push(_this3.typeToColorDict[key]);
                 type["percent"] = type["value"] / dataSum;
                 type["rad"] = type["percent"] * 2 * Math.PI;
                 type["type"] = key;
-                _this2.colorToDataTypeDict[_this2.pieChartColors[index]] = type;
+                _this3.colorToDataTypeDict[_this3.pieChartColors[index]] = type;
                 aggData[index] = type;
             });
 
@@ -250,7 +260,7 @@ var PieChart = function (_PureComponent) {
 }(_react.PureComponent);
 
 var _initialiseProps = function _initialiseProps() {
-    var _this3 = this;
+    var _this4 = this;
 
     this.drawPieChart = function (ctx, colors) {
         var selected = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : "";
@@ -260,8 +270,8 @@ var _initialiseProps = function _initialiseProps() {
         var beginAngle = 0;
         var endAngle = 0;
         var r, x, y, offsetX, offsetY, medianAngleRad, cosMedianAngle, sinMedianAngle;
-        var cx = _this3.pieChartCanvasW / 2;
-        var cy = _this3.pieChartCanvasH / 2 + 30;
+        var cx = _this4.pieChartCanvasW / 2;
+        var cy = _this4.pieChartCanvasH / 2 + 30;
         var label = "ERROR";
         var fillColor = "";
         var maxUsedOuterLabelAngleDeg = 0;
@@ -269,19 +279,19 @@ var _initialiseProps = function _initialiseProps() {
 
         if (ctx) {
             ctx.canvas.width = ctx.canvas.width;
-            ctx.clearRect(0, 0, _this3.pieChartCanvasW, _this3.pieChartCanvasH);
+            ctx.clearRect(0, 0, _this4.pieChartCanvasW, _this4.pieChartCanvasH);
 
-            for (var i = 0; i < _this3.aggData.length; i++) {
-                r = isPickingCanvas ? _this3.pieChartCanvasW / 4 + 10 : _this3.pieChartCanvasW / 4;
-                label = _this3.aggData[i].type;
+            for (var i = 0; i < _this4.aggData.length; i++) {
+                r = isPickingCanvas ? _this4.pieChartCanvasW / 4 + 10 : _this4.pieChartCanvasW / 4;
+                label = _this4.aggData[i].type;
                 beginAngle = endAngle;
-                endAngle = endAngle + _this3.aggData[i].rad;
+                endAngle = endAngle + _this4.aggData[i].rad;
                 medianAngleRad = (endAngle + beginAngle) / 2;
                 cosMedianAngle = Math.cos(medianAngleRad);
                 sinMedianAngle = Math.sin(medianAngleRad);
                 x = cx + r * 0.60 * cosMedianAngle;
                 y = cy + r * 0.60 * sinMedianAngle;
-                fillColor = _this3.props.dataTypeToColorDict[_this3.aggData[i].type];
+                fillColor = colors[i];
 
                 if (isPickingCanvas) {
                     // picking canvas
@@ -297,7 +307,7 @@ var _initialiseProps = function _initialiseProps() {
                 }
 
                 // for outer labeling
-                outerLabelAngleDeg = _this3.roundDegToMultiOfTen(_this3.toDegree(medianAngleRad));
+                outerLabelAngleDeg = _this4.roundDegToMultiOfTen(_this4.toDegree(medianAngleRad));
                 if (outerLabelAngleDeg <= maxUsedOuterLabelAngleDeg + 5) {
                     maxUsedOuterLabelAngleDeg += 6;
                     outerLabelAngleDeg = maxUsedOuterLabelAngleDeg;
@@ -321,14 +331,14 @@ var _initialiseProps = function _initialiseProps() {
                 ctx.font = selected !== fillColor ? "bold 10pt MuseoSans" : "900 10pt MuseoSans";
                 ctx.fillStyle = isPickingCanvas ? fillColor : '#1f589d';
 
-                if (_this3.aggData[i].percent > 0.15) {
+                if (_this4.aggData[i].percent > 0.15) {
                     if (!isPickingCanvas) {
                         // draw the inner label
                         ctx.fillText(label, x, y);
                     }
                 } else {
-                    var outerLabelCosMedianAngle = Math.cos(_this3.toRadians(outerLabelAngleDeg));
-                    var outerLabelSinMedianAngle = Math.sin(_this3.toRadians(outerLabelAngleDeg));
+                    var outerLabelCosMedianAngle = Math.cos(_this4.toRadians(outerLabelAngleDeg));
+                    var outerLabelSinMedianAngle = Math.sin(_this4.toRadians(outerLabelAngleDeg));
                     // modify the radius for the picking canvas so that label rect is drawn at the same position
                     // as the visible canvas
                     var outerLabelR = isPickingCanvas ? r -= 10 : r;
@@ -336,7 +346,7 @@ var _initialiseProps = function _initialiseProps() {
                     var outerLabelY = cy + outerLabelR * 0.90 * outerLabelSinMedianAngle + outerLabelR / 2 * outerLabelSinMedianAngle;
 
                     if (!isPickingCanvas) {
-                        if (_this3.aggData[i].percent > 0.15) {
+                        if (_this4.aggData[i].percent > 0.15) {
                             // draw the inner label
                             ctx.fillText(label, x, y);
                         }
@@ -458,7 +468,7 @@ var _initialiseProps = function _initialiseProps() {
     };
 
     this.digToRgbStr = function (num) {
-        return "rgb(0,0," + num * _this3.pieChartPickingColorOffSet + ")";
+        return "rgb(0,0," + num * _this4.pieChartPickingColorOffSet + ")";
     };
 
     this.randomRgba = function () {
@@ -469,39 +479,41 @@ var _initialiseProps = function _initialiseProps() {
     };
 
     this.handleMouseMove = function (e) {
-        var pos = _this3.findPos(_this3.pieChartCanvas);
+        var pos = _this4.findPos(_this4.pieChartCanvas);
         var x = e.pageX - pos.x;
         var y = e.pageY - pos.y;
-        var p = _this3.pieChartPickingCtx.getImageData(x, y, 1, 1).data;
-        var currentColorIndex = p[2] / _this3.pieChartPickingColorOffSet - 1;
+        var p = _this4.pieChartPickingCtx.getImageData(x, y, 1, 1).data;
+        var currentColorIndex = p[2] / _this4.pieChartPickingColorOffSet - 1;
         var originalXOffset = 75;
         var originalYOffset = 15;
 
         // redraw the chart to "offset" the slice that is being hovered over
         // this.pieChartCtx.clearRect(0, 0, this.pieChartCanvasW, this.pieChartCanvasH);
-        _this3.drawPieChart(_this3.pieChartCtx, _this3.pieChartColors, _this3.pieChartColors[currentColorIndex]);
+        _this4.drawPieChart(_this4.pieChartCtx, _this4.pieChartColors, _this4.pieChartColors[currentColorIndex]);
+
+        console.log(p, currentColorIndex, _this4.pieChartPickingColors);
 
         if (p[2] !== 0 && p[3] === 255) {
-            _this3.setState({
+            _this4.setState({
                 toolTipLeft: e.clientX - originalXOffset,
                 toolTipTop: e.clientY + originalYOffset,
                 canvasToolTipVisibility: "visible",
-                currentHovering: _this3.aggData[currentColorIndex]
+                currentHovering: _this4.aggData[currentColorIndex]
             });
         } else {
-            _this3.setState(_extends({}, _this3.state, {
+            _this4.setState(_extends({}, _this4.state, {
                 canvasToolTipVisibility: "hidden"
             }));
         }
 
-        if (_this3.state.currentHovering !== _this3.aggData[currentColorIndex]) {
+        if (_this4.state.currentHovering !== _this4.aggData[currentColorIndex]) {
             // draw the bars
-            _this3.drawBreakDownBars();
+            _this4.drawBreakDownBars();
         }
     };
 
     this.handleMouseOut = function () {
-        _this3.setState(_extends({}, _this3.state, {
+        _this4.setState(_extends({}, _this4.state, {
             canvasToolTipVisibility: "hidden"
         }));
     };
