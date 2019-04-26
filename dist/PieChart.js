@@ -112,11 +112,11 @@ var PieChart = function (_PureComponent) {
 
             var aggData = [];
             var aggDataTypeTable = {};
-            var dataSum = 0;
+            this.dataSum = 0;
             this.pieChartColors = [];
 
             rawData.map(function (d) {
-                dataSum += d.value;
+                _this4.dataSum += d.value;
                 if (!aggDataTypeTable[d.type]) {
                     aggDataTypeTable[d.type] = { "value": d.value };
                 } else {
@@ -127,7 +127,7 @@ var PieChart = function (_PureComponent) {
             Object.keys(aggDataTypeTable).map(function (key, index) {
                 var type = aggDataTypeTable[key];
                 _this4.pieChartColors.push(_this4.typeToColorDict[key]);
-                type["percent"] = type["value"] / dataSum;
+                type["percent"] = type["value"] / _this4.dataSum;
                 type["rad"] = type["percent"] * 2 * Math.PI;
                 type["type"] = key;
                 _this4.colorToDataTypeDict[_this4.pieChartColors[index]] = type;
@@ -417,17 +417,6 @@ var _initialiseProps = function _initialiseProps() {
         }
     };
 
-    this.roundRadUp = function (rad) {
-        if (rad < 0.1) {
-            return 0.1;
-        } else if (rad >= 6.2) {
-            return 0;
-        } else {
-            var newRad = rad += 0.1;
-            return parseFloat(newRad.toFixed(1));
-        }
-    };
-
     this.roundDegToMultiOfTen = function (deg) {
         if (deg < 10) {
             return 10;
@@ -459,20 +448,6 @@ var _initialiseProps = function _initialiseProps() {
         return undefined;
     };
 
-    this.rgbToHex = function (r, g, b) {
-        if (r > 255 || g > 255 || b > 255) throw "Invalid color component";
-        return (r << 16 | g << 8 | b).toString(16).toUpperCase();
-    };
-
-    this.hexToRgb = function (hex) {
-        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-        return result ? {
-            r: parseInt(result[1], 16),
-            g: parseInt(result[2], 16),
-            b: parseInt(result[3], 16)
-        } : null;
-    };
-
     this.digToRgbStr = function (num) {
         return "rgb(0,0," + num * _this5.pieChartPickingColorOffSet + ")";
     };
@@ -500,8 +475,6 @@ var _initialiseProps = function _initialiseProps() {
             pieChartColors.push(_this5.props.dataTypeToColorDict[d["type"]]);
         });
         _this5.drawPieChart(_this5.pieChartCtx, pieChartColors, pieChartColors[currentColorIndex]);
-
-        console.log(p, currentColorIndex, _this5.pieChartPickingColors);
 
         if (p[2] !== 0 && p[3] === 255) {
             _this5.setState({

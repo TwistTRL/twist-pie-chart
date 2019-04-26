@@ -34,23 +34,23 @@ class App extends Component {
         let self = this
         setInterval(function () {
             self.simulateDataChange()
-        }, 1000);
+        }, 1000)
     }
 
     handleRemoveBtnCLick() {
         let data = this.state.data
-        data = data.slice(0, -1);
+        data = data.slice(0, -1)
         this.setState({
             data: data
         })
     }
 
     handleSubmit = (e) => {
-        if (e) e.preventDefault();
-        const data = this.data.value;
+        if (e) e.preventDefault()
+        const data = this.data.value
         var jsonStr = data.replace(/(\w+:)|(\w+ :)/g, function (s) {
-            return '"' + s.substring(0, s.length - 1) + '":';
-        });
+            return '"' + s.substring(0, s.length - 1) + '":'
+        })
 
         let json = JSON.parse(jsonStr)
         let newData = this.state.data
@@ -66,7 +66,7 @@ class App extends Component {
 
         if (addOrRemove % 11 === 0) {
             let data = this.state.data
-            data = data.slice(0, -1);
+            data = data.slice(0, -1)
             this.setState({
                 data: data
             })
