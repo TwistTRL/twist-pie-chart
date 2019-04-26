@@ -3,12 +3,12 @@ import "./PieChart.css"
 
 class PieChart extends PureComponent {
     constructor(props) {
-        super(props);
-        this.data = this.props.data;
-        this.title = this.props.title;
+        super(props)
+        this.data = this.props.data
+        this.title = this.props.title
         this.typeToColorDict = this.props.dataTypeToColorDict
-        this.pieChartCtx = null;
-        this.pieChartPickingCtx = null;
+        this.pieChartCtx = null
+        this.pieChartPickingCtx = null
 
         this.pieChartCanvasW = 350
         this.pieChartCanvasH = 400
@@ -44,24 +44,28 @@ class PieChart extends PureComponent {
         for (var i = 1; i <= this.aggData.length; i++) {
             this.pieChartPickingColors.push(this.digToRgbStr(i))
         }
-        this.drawPieChart(this.pieChartCtx, this.pieChartColors)
+        let pieChartColors = []
+        this.aggData.map(d => {
+            pieChartColors.push(this.props.dataTypeToColorDict[d["type"]])
+        })
+        this.drawPieChart(this.pieChartCtx, pieChartColors)
         this.drawPieChart(this.pieChartPickingCtx, this.pieChartPickingColors, " ", true)
     }
 
     componentDidUpdate() {
+        this.data = this.props.data
+        this.title = this.props.title
+        this.typeToColorDict = this.props.dataTypeToColorDict
+        this.aggData = this.aggTheData(this.data)
+        this.pieChartPickingColors = []
+        for (var i = 1; i <= this.aggData.length; i++) {
+            this.pieChartPickingColors.push(this.digToRgbStr(i))
+        }
+        let pieChartColors = []
+        this.aggData.map(d => {
+            pieChartColors.push(this.props.dataTypeToColorDict[d["type"]])
+        })
         if (this.state.canvasToolTipVisibility === "hidden") {
-            this.data = this.props.data;
-            this.title = this.props.title;
-            this.typeToColorDict = this.props.dataTypeToColorDict
-            this.aggData = this.aggTheData(this.data)
-            this.pieChartPickingColors = []
-            for (var i = 1; i <= this.aggData.length; i++) {
-                this.pieChartPickingColors.push(this.digToRgbStr(i))
-            }
-            let pieChartColors = []
-            this.aggData.map(d => {
-                pieChartColors.push(this.props.dataTypeToColorDict[d["type"]])
-            })
             this.drawPieChart(this.pieChartCtx, pieChartColors)
             this.drawPieChart(this.pieChartPickingCtx, this.pieChartPickingColors, " ", true)
         }
@@ -101,41 +105,41 @@ class PieChart extends PureComponent {
 
     // pass in data too
     drawPieChart = (ctx, colors, selected = "", isPickingCanvas = false) => {
-        var offset = 10;
-        var beginAngle = 0;
-        var endAngle = 0;
+        var offset = 10
+        var beginAngle = 0
+        var endAngle = 0
         var r, x, y, offsetX, offsetY, medianAngleRad, cosMedianAngle, sinMedianAngle
-        var cx = this.pieChartCanvasW / 2;
-        var cy = this.pieChartCanvasH / 2 + 30;
+        var cx = this.pieChartCanvasW / 2
+        var cy = this.pieChartCanvasH / 2 + 30
         var label = "ERROR"
         var fillColor = ""
-        var maxUsedOuterLabelAngleDeg = 0;
-        var outerLabelAngleDeg;
+        var maxUsedOuterLabelAngleDeg = 0
+        var outerLabelAngleDeg
 
         if (ctx) {
             ctx.canvas.width = ctx.canvas.width
-            ctx.clearRect(0, 0, this.pieChartCanvasW, this.pieChartCanvasH);
+            ctx.clearRect(0, 0, this.pieChartCanvasW, this.pieChartCanvasH)
 
             for (var i = 0; i < this.aggData.length; i++) {
                 r = isPickingCanvas ? this.pieChartCanvasW / 4 + 10 : this.pieChartCanvasW / 4
                 label = this.aggData[i].type
                 beginAngle = endAngle
-                endAngle = endAngle + this.aggData[i].rad;
-                medianAngleRad = (endAngle + beginAngle) / 2;
+                endAngle = endAngle + this.aggData[i].rad
+                medianAngleRad = (endAngle + beginAngle) / 2
                 cosMedianAngle = Math.cos(medianAngleRad)
                 sinMedianAngle = Math.sin(medianAngleRad)
-                x = cx + r * 0.60 * cosMedianAngle;
-                y = cy + r * 0.60 * sinMedianAngle;
+                x = cx + r * 0.60 * cosMedianAngle
+                y = cy + r * 0.60 * sinMedianAngle
                 fillColor = colors[i]
 
                 if (isPickingCanvas) {
                     // picking canvas
-                    offsetX = 0;
-                    offsetY = 0;
+                    offsetX = 0
+                    offsetY = 0
                 } else if (fillColor === selected) {
                     // for hovering effect
-                    offsetX = cosMedianAngle * offset;
-                    offsetY = sinMedianAngle * offset;
+                    offsetX = cosMedianAngle * offset
+                    offsetY = sinMedianAngle * offset
                 } else {
                     offsetX = cosMedianAngle * 2
                     offsetY = sinMedianAngle * 2
@@ -151,48 +155,48 @@ class PieChart extends PureComponent {
                 }
 
                 // draw the slice
-                ctx.beginPath();
-                ctx.fillStyle = fillColor;
-                ctx.moveTo(cx + offsetX, cy + offsetY);
-                ctx.arc(cx + offsetX, cy + offsetY, r, beginAngle, endAngle);
-                ctx.lineTo(cx + offsetX, cy + offsetY);
-                ctx.strokeStyle = fillColor;  //'rgba(0, 0, 0, 0.4)'
-                ctx.fill();
+                ctx.beginPath()
+                ctx.fillStyle = fillColor
+                ctx.moveTo(cx + offsetX, cy + offsetY)
+                ctx.arc(cx + offsetX, cy + offsetY, r, beginAngle, endAngle)
+                ctx.lineTo(cx + offsetX, cy + offsetY)
+                ctx.strokeStyle = fillColor  //'rgba(0, 0, 0, 0.4)'
+                ctx.fill()
 
                 //label styling
-                ctx.textAlign = "center";
-                ctx.textBaseline = "top";
+                ctx.textAlign = "center"
+                ctx.textBaseline = "top"
                 // hovering effect
                 ctx.font = selected !== fillColor ? "bold 10pt MuseoSans" : "900 10pt MuseoSans"
-                ctx.fillStyle = isPickingCanvas ? fillColor : '#1f589d';
+                ctx.fillStyle = isPickingCanvas ? fillColor : '#1f589d'
 
                 if (this.aggData[i].percent > 0.15) {
                     if (!isPickingCanvas) {
                         // draw the inner label
-                        ctx.fillText(label, x, y);
+                        ctx.fillText(label, x, y)
                     }
                 } else {
                     var outerLabelCosMedianAngle = Math.cos(this.toRadians(outerLabelAngleDeg))
                     var outerLabelSinMedianAngle = Math.sin(this.toRadians(outerLabelAngleDeg))
                     // modify the radius for the picking canvas so that label rect is drawn at the same position
                     // as the visible canvas
-                    var outerLabelR = isPickingCanvas ? r -= 10 : r;
-                    var outerLabelX = cx + outerLabelR * 0.80 * outerLabelCosMedianAngle + outerLabelR / 2 * outerLabelCosMedianAngle;
+                    var outerLabelR = isPickingCanvas ? r -= 10 : r
+                    var outerLabelX = cx + outerLabelR * 0.80 * outerLabelCosMedianAngle + outerLabelR / 2 * outerLabelCosMedianAngle
                     var outerLabelY = cy + outerLabelR * 0.90 * outerLabelSinMedianAngle + outerLabelR / 2 * outerLabelSinMedianAngle
 
                     if (!isPickingCanvas) {
                         if (this.aggData[i].percent > 0.15) {
                             // draw the inner label
-                            ctx.fillText(label, x, y);
+                            ctx.fillText(label, x, y)
                         }
 
                         // draw the label line
-                        x = cx + r * 0.90 * cosMedianAngle;
-                        y = cy + r * 0.90 * sinMedianAngle;
+                        x = cx + r * 0.90 * cosMedianAngle
+                        y = cy + r * 0.90 * sinMedianAngle
                         ctx.lineWidth = selected === fillColor[i] ? 2 : 1.3
                         ctx.beginPath()
-                        ctx.moveTo(x, y);
-                        ctx.lineTo(x + r / 5 * cosMedianAngle, y + r / 5 * sinMedianAngle);
+                        ctx.moveTo(x, y)
+                        ctx.lineTo(x + r / 5 * cosMedianAngle, y + r / 5 * sinMedianAngle)
 
                         // position label differently depending on the angle 
                         if (outerLabelAngleDeg >= 90 && outerLabelAngleDeg < 180) {
@@ -214,7 +218,7 @@ class PieChart extends PureComponent {
 
                         // draw angled line
                         ctx.lineTo(outerLabelX, outerLabelY)
-                        ctx.stroke();
+                        ctx.stroke()
                         // draw the outer label
                         ctx.fillText(label, outerLabelX, outerLabelY);
                     } else {
@@ -239,7 +243,7 @@ class PieChart extends PureComponent {
                         }
 
                         ctx.fillStyle = fillColor[i]
-                        ctx.fill();
+                        ctx.fill()
                     }
                 }
             }
@@ -361,7 +365,11 @@ class PieChart extends PureComponent {
 
         // redraw the chart to "offset" the slice that is being hovered over
         // this.pieChartCtx.clearRect(0, 0, this.pieChartCanvasW, this.pieChartCanvasH);
-        this.drawPieChart(this.pieChartCtx, this.pieChartColors, this.pieChartColors[currentColorIndex]);
+        let pieChartColors = []
+        this.aggData.map(d => {
+            pieChartColors.push(this.props.dataTypeToColorDict[d["type"]])
+        })
+        this.drawPieChart(this.pieChartCtx, pieChartColors, pieChartColors[currentColorIndex]);
 
         console.log(p, currentColorIndex, this.pieChartPickingColors)
 
@@ -371,12 +379,12 @@ class PieChart extends PureComponent {
                 toolTipTop: e.clientY + originalYOffset,
                 canvasToolTipVisibility: "visible",
                 currentHovering: this.aggData[currentColorIndex]
-            });
+            })
         } else {
             this.setState({
                 ...this.state,
                 canvasToolTipVisibility: "hidden",
-            });
+            })
         }
 
         if (this.state.currentHovering !== this.aggData[currentColorIndex]) {
