@@ -84,7 +84,7 @@ class App extends Component {
     }
 
     render() {
-        let data = this.state.data
+        let { data, width } = this.state
         return (
             <>
                 <div>Pass in data in the form: {' { value: 1, type: "MEDS" } '}</div>
