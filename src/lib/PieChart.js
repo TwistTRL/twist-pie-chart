@@ -10,7 +10,7 @@ class PieChart extends PureComponent {
         this.pieChartCtx = null
         this.pieChartPickingCtx = null
 
-        this.pieChartCanvasW = 350
+        this.pieChartCanvasW = this.props.width
         this.pieChartCanvasH = 400
         this.pieChartToolTipW = 150
         this.pieChartToolTipH = 190
@@ -375,6 +375,12 @@ class PieChart extends PureComponent {
 
     render() {
         const styles = {
+            chartContainer: {
+                width: this.props.width
+            },
+            pieChartTitle: {
+                fontSize: "25pt"
+            },
             pickingCanvas: {
                 display: "none"
             },
@@ -388,8 +394,10 @@ class PieChart extends PureComponent {
             }
         }
         return (
-            <div className="pie-chart-container">
-                <div className="pie-chart-title">
+            <div
+                className="pie-chart-container"
+                style={{ width: styles.chartContainer.width }}>
+                <div className="pie-chart-title" style={{ fontSize: styles.pieChartTitle.fontSize }}>
                     <span>{this.title + " " + this.dataSum} </span>
                     <span className="pie-chart-title-measurements">mL/kg/day</span>
                 </div>

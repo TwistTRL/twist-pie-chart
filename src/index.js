@@ -97,7 +97,11 @@ class App extends Component {
                     <button>ADD DATA</button>
                 </form>
                 <button onClick={this.handleRemoveBtnCLick}>REMOVE DATA</button>
-                <PieChart data={data} dataTypeToColorDict={this.dataTypeToColorDict} title={"Calories"} />
+                <PieChart
+                    data={data}
+                    width={500}
+                    dataTypeToColorDict={this.dataTypeToColorDict}
+                    title={"Calories"} />
             </>
         )
     }
