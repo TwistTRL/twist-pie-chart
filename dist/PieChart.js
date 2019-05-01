@@ -38,7 +38,7 @@ var PieChart = function (_PureComponent) {
         _this.pieChartCtx = null;
         _this.pieChartPickingCtx = null;
 
-        _this.pieChartCanvasW = 350;
+        _this.pieChartCanvasW = _this.props.width;
         _this.pieChartCanvasH = 400;
         _this.pieChartToolTipW = 150;
         _this.pieChartToolTipH = 190;
@@ -187,6 +187,12 @@ var PieChart = function (_PureComponent) {
         key: "render",
         value: function render() {
             var styles = {
+                chartContainer: {
+                    width: this.props.width
+                },
+                pieChartTitle: {
+                    fontSize: "25pt"
+                },
                 pickingCanvas: {
                     display: "none"
                 },
@@ -201,10 +207,12 @@ var PieChart = function (_PureComponent) {
             };
             return _react2.default.createElement(
                 "div",
-                { className: "pie-chart-container" },
+                {
+                    className: "pie-chart-container",
+                    style: { width: styles.chartContainer.width } },
                 _react2.default.createElement(
                     "div",
-                    { className: "pie-chart-title" },
+                    { className: "pie-chart-title", style: { fontSize: styles.pieChartTitle.fontSize } },
                     _react2.default.createElement(
                         "span",
                         null,
