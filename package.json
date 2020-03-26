@@ -6,7 +6,6 @@
     "jslint": "^0.12.1",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
-    "react-scripts": "3.0.0",
     "react-tabs": "^3.0.0"
   },
   "scripts": {
@@ -34,15 +33,15 @@
     ]
   },
   "devDependencies": {
-    "proptypes": "^1.1.0",
-    "react": "^16.8.6",
-    "react-dom": "^16.8.6",
-    "react-scripts": "3.0.0",
     "babel-cli": "^6.26.0",
     "babel-preset-env": "^1.7.0",
     "babel-preset-react": "^6.24.1",
     "babel-preset-stage-0": "^6.24.1",
-    "gh-pages": "^2.0.1"
+    "gh-pages": "^2.0.1",
+    "proptypes": "^1.1.0",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-scripts": "^3.4.1"
   },
   "repository": {
     "type": "git",
