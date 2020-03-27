@@ -48,14 +48,14 @@ var PieChart = function (_PureComponent) {
       _this.drawPieChart(_this.pieChartCtx, pieChartColors, pieChartColors[currentColorIndex]);
 
       if (p[2] !== 0 && p[3] === 255) {
-        _this.setState({
+        _this.setState(_extends({}, _this.state, {
           toolTipLeft: e.clientX - originalXOffset,
           toolTipTop: e.clientY + originalYOffset,
           canvasToolTipVisibility: "visible",
           currentHovering: _extends({}, _this.aggData[currentColorIndex], {
             color: pieChartColors[currentColorIndex]
           })
-        });
+        }));
       } else {
         _this.setState(_extends({}, _this.state, {
           canvasToolTipVisibility: "hidden"
@@ -89,7 +89,8 @@ var PieChart = function (_PureComponent) {
     _this.state = {
       canvasToolTipVisibility: "hidden",
       toolTipLeft: _this.pieChartCanvasW - _this.pieChartToolTipW,
-      toolTipTop: _this.pieChartCanvasH - _this.pieChartToolTipH + _this.pieChartToolTipOffsetY
+      toolTipTop: _this.pieChartCanvasH - _this.pieChartToolTipH + _this.pieChartToolTipOffsetY,
+      dataSum: 0
     };
 
     // pie chart data setup
@@ -183,6 +184,10 @@ var PieChart = function (_PureComponent) {
         return a.rad - b.rad;
       });
 
+      this.setState(_extends({}, this.state, {
+        dataSum: this.dataSum
+      }));
+
       return aggData;
     }
 
@@ -255,7 +260,7 @@ var PieChart = function (_PureComponent) {
           ctx.textAlign = "center";
           ctx.textBaseline = "top";
           // hovering effect
-          ctx.font = selected !== fillColor ? "bold 10pt MuseoSans" : "900 10pt MuseoSans";
+          ctx.font = selected !== fillColor ? "500 10pt MuseoSans Arial" : "900 10pt MuseoSans Arial";
           ctx.fillStyle = isPickingCanvas ? fillColor : "#1f589d";
 
           if (this.aggData[i].percent > 0.15) {
@@ -466,7 +471,9 @@ var PieChart = function (_PureComponent) {
     key: "render",
     value: function render() {
       var titleUnit = this.props.titleUnit;
-      var currentHovering = this.state.currentHovering;
+      var _state = this.state,
+          currentHovering = _state.currentHovering,
+          dataSum = _state.dataSum;
 
       var styles = {
         chartContainer: {
@@ -502,7 +509,7 @@ var PieChart = function (_PureComponent) {
           _react2.default.createElement(
             "span",
             null,
-            this.title + " " + this.dataSum,
+            this.title + " " + dataSum,
             " "
           ),
           _react2.default.createElement(
