@@ -22,7 +22,8 @@ class PieChart extends PureComponent {
       toolTipTop:
         this.pieChartCanvasH -
         this.pieChartToolTipH +
-        this.pieChartToolTipOffsetY
+        this.pieChartToolTipOffsetY,
+      dataSum: 0
     };
 
     // pie chart data setup
@@ -115,6 +116,11 @@ class PieChart extends PureComponent {
       return a.rad - b.rad;
     });
 
+    this.setState({
+      ...this.state,
+      dataSum: this.dataSum
+    });
+
     return aggData;
   }
 
@@ -193,7 +199,9 @@ class PieChart extends PureComponent {
         ctx.textBaseline = "top";
         // hovering effect
         ctx.font =
-          selected !== fillColor ? "bold 10pt MuseoSans" : "900 10pt MuseoSans";
+          selected !== fillColor
+            ? "500 10pt MuseoSans Arial"
+            : "900 10pt MuseoSans Arial";
         ctx.fillStyle = isPickingCanvas ? fillColor : "#1f589d";
 
         if (this.aggData[i].percent > 0.15) {
@@ -442,6 +450,7 @@ class PieChart extends PureComponent {
 
     if (p[2] !== 0 && p[3] === 255) {
       this.setState({
+        ...this.state,
         toolTipLeft: e.clientX - originalXOffset,
         toolTipTop: e.clientY + originalYOffset,
         canvasToolTipVisibility: "visible",
@@ -472,7 +481,7 @@ class PieChart extends PureComponent {
 
   render() {
     const { titleUnit } = this.props;
-    const { currentHovering } = this.state;
+    const { currentHovering, dataSum } = this.state;
     const styles = {
       chartContainer: {
         width: this.props.width
@@ -501,7 +510,7 @@ class PieChart extends PureComponent {
           className="pie-chart-title"
           style={{ fontSize: styles.pieChartTitle.fontSize }}
         >
-          <span>{this.title + " " + this.dataSum} </span>
+          <span>{this.title + " " + dataSum} </span>
           <span className="pie-chart-title-measurements">{titleUnit}</span>
         </div>
         <canvas

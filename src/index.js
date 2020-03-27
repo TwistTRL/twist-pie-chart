@@ -53,10 +53,11 @@ class App extends Component {
     });
 
     let json = JSON.parse(jsonStr);
-    let newData = this.state.data;
+    let newData = [...this.state.data];
     newData.push(json);
+
     this.setState({
-      data: [...this.state.data, json]
+      data: newData
     });
   };
 
