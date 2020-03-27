@@ -110,7 +110,7 @@ class App extends Component {
           width={500}
           dataTypeToColorDict={this.dataTypeToColorDict}
           title="Calories"
-          titleUnit="mL/kg/day"
+          titleUnit="kCal/kg/day"
         />
       </>
     );
