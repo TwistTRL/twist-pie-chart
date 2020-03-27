@@ -445,7 +445,10 @@ class PieChart extends PureComponent {
         toolTipLeft: e.clientX - originalXOffset,
         toolTipTop: e.clientY + originalYOffset,
         canvasToolTipVisibility: "visible",
-        currentHovering: this.aggData[currentColorIndex]
+        currentHovering: {
+          ...this.aggData[currentColorIndex],
+          color: pieChartColors[currentColorIndex]
+        }
       });
     } else {
       this.setState({
@@ -488,7 +491,7 @@ class PieChart extends PureComponent {
         zIndex: 9999
       }
     };
- 
+
     return (
       <div
         className="pie-chart-container"
@@ -516,27 +519,37 @@ class PieChart extends PureComponent {
           onMouseMove={this.handleMouseMove}
           onMouseOut={this.handleMouseOut}
         />
-        <div
-          className="pie-chart-tooltip-container"
-          style={styles.tooltipContainer}
-        >
-          <span className="pie-chart-tooltip-title">
-            {currentHovering ? currentHovering["type"] : ""}
-          </span>
-          <br />
-          <span className="pie-chart-tooltip-percent">
-            {currentHovering ? currentHovering["value"]: ""}
-          </span>
-          <span className="pie-chart-tooltip-details">{titleUnit}</span>
-          <br />
-          <span className="pie-chart-tooltip-percent">
-            {currentHovering
-              ? Math.round(currentHovering["percent"].toFixed(2) * 100) + "%"
-              : ""}
-          </span>
-          <span className="pie-chart-tooltip-details">of total</span>
-          {/* <canvas className="pie-chart-tooltip-canvas" ref="tooltipCanvas" /> */}
-        </div>
+        {currentHovering ? (
+          <div
+            className="pie-chart-tooltip-container"
+            style={styles.tooltipContainer}
+          >
+            <div
+              className="pie-chart-tooltip-title-container"
+              style={{
+                backgroundColor: currentHovering["color"]
+                  ? currentHovering["color"]
+                  : "white"
+              }}
+            >
+              <span className="pie-chart-tooltip-title">
+                {currentHovering["type"] ? currentHovering["type"] : ""}
+              </span>
+            </div>
+            <span className="pie-chart-tooltip-percent">
+              {currentHovering["value"] ? currentHovering["value"] : ""}
+            </span>
+            <span className="pie-chart-tooltip-details">{titleUnit}</span>
+            <br />
+            <span className="pie-chart-tooltip-percent">
+              {currentHovering["percent"]
+                ? Math.round(currentHovering["percent"].toFixed(2) * 100) + "%"
+                : ""}
+            </span>
+            <span className="pie-chart-tooltip-details">of total</span>
+            {/* <canvas className="pie-chart-tooltip-canvas" ref="tooltipCanvas" /> */}
+          </div>
+        ) : null}
       </div>
     );
   }
