@@ -1,10 +1,10 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "f23cccb8bb09d565f69c5e84b71990ad",
+    "revision": "8f694cba76b3733216fa5af767824b10",
     "url": "/twist-pie-chart/index.html"
   },
   {
-    "revision": "50c7a8fdf2da93d32133",
+    "revision": "27ef4b64fcc1a327d083",
     "url": "/twist-pie-chart/static/css/main.15ff451d.chunk.css"
   },
   {
@@ -16,8 +16,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/twist-pie-chart/static/js/2.84c35178.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "50c7a8fdf2da93d32133",
-    "url": "/twist-pie-chart/static/js/main.c63882a1.chunk.js"
+    "revision": "27ef4b64fcc1a327d083",
+    "url": "/twist-pie-chart/static/js/main.bf7f5c51.chunk.js"
   },
   {
     "revision": "0e4b1563128be99b89d5",

@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/twist-pie-chart/static/css/main.15ff451d.chunk.css",
-    "main.js": "/twist-pie-chart/static/js/main.c63882a1.chunk.js",
-    "main.js.map": "/twist-pie-chart/static/js/main.c63882a1.chunk.js.map",
+    "main.js": "/twist-pie-chart/static/js/main.bf7f5c51.chunk.js",
+    "main.js.map": "/twist-pie-chart/static/js/main.bf7f5c51.chunk.js.map",
     "runtime-main.js": "/twist-pie-chart/static/js/runtime-main.21ca4e3e.js",
     "runtime-main.js.map": "/twist-pie-chart/static/js/runtime-main.21ca4e3e.js.map",
     "static/js/2.84c35178.chunk.js": "/twist-pie-chart/static/js/2.84c35178.chunk.js",
     "static/js/2.84c35178.chunk.js.map": "/twist-pie-chart/static/js/2.84c35178.chunk.js.map",
     "index.html": "/twist-pie-chart/index.html",
-    "precache-manifest.8b704317f16639ccbc98cb89d5f80846.js": "/twist-pie-chart/precache-manifest.8b704317f16639ccbc98cb89d5f80846.js",
+    "precache-manifest.d282e95971fa56af6a6cae540adf9fa4.js": "/twist-pie-chart/precache-manifest.d282e95971fa56af6a6cae540adf9fa4.js",
     "service-worker.js": "/twist-pie-chart/service-worker.js",
     "static/css/main.15ff451d.chunk.css.map": "/twist-pie-chart/static/css/main.15ff451d.chunk.css.map",
     "static/js/2.84c35178.chunk.js.LICENSE.txt": "/twist-pie-chart/static/js/2.84c35178.chunk.js.LICENSE.txt"
@@ -17,6 +17,6 @@
     "static/js/runtime-main.21ca4e3e.js",
     "static/js/2.84c35178.chunk.js",
     "static/css/main.15ff451d.chunk.css",
-    "static/js/main.c63882a1.chunk.js"
+    "static/js/main.bf7f5c51.chunk.js"
   ]
 }
